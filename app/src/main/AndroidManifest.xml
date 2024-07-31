@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.CLOUDPOS_SET_MOBILE_DATA"/>
     <uses-permission android:name="android.permission.CLOUDPOS_SET_USR_PROP"/>
     <uses-permission android:name="android.permission.CLOUDPOS_DISABLE_POWER_KEY" />
-    <uses-permission android:name="android.permission.CLOUDPOS_LOCK_STATUS_BAR" />
 
     <application
         android:allowBackup="true"
@@ -21,6 +20,23 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".receiver.DeviceAdminSampleReceiver"
+            android:label="@string/sample_device_admin"
+            android:description="@string/sample_device_admin_description"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_sample" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+        <activity android:name=".DeviceAdminSample"
+            android:label="@string/activity_sample_device_admin">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
     </application>

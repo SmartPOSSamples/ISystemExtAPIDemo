@@ -1,3 +1,4 @@
-# Terminal Api Demo
+# SystemExtApiDemo
 
-A demo that showcases a collection of various functions from other demos as buttons on one screen, including setting screen off time to 30s, selecting preferred network type, automatically setting time, and changing the language.
+The demo provides an extensible application programming interface (API) for specific business needs
+or technical functionalities.

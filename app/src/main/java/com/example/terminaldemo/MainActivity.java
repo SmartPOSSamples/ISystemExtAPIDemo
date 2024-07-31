@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.example.terminaldemo.receiver.DeviceAdminSampleReceiver;
 import com.example.util.Logger;
 import com.example.util.TextViewUtil;
 import com.wizarpos.wizarviewagentassistant.aidl.ISystemExtApi;
@@ -24,7 +25,7 @@ import com.wizarpos.wizarviewagentassistant.aidl.NetworkType;
 
 import java.util.Locale;
 
-public class MainActivity extends AbstractActivity implements View.OnClickListener,ServiceConnection {
+public class MainActivity extends AbstractActivity implements View.OnClickListener, ServiceConnection {
     ISystemExtApi systemExtApi;
     private String TAG = "MainActivity";
 
@@ -81,7 +82,6 @@ public class MainActivity extends AbstractActivity implements View.OnClickListen
         findViewById(R.id.enableMtp).setOnClickListener(this);
         findViewById(R.id.getMtpStatus).setOnClickListener(this);
         findViewById(R.id.setLanguage).setOnClickListener(this);
-        findViewById(R.id.resetLanguage).setOnClickListener(this);
         findViewById(R.id.enableAirplaneMode).setOnClickListener(this);
         findViewById(R.id.settings).setOnClickListener(this);
         mHandler = new Handler() {
@@ -117,7 +117,7 @@ public class MainActivity extends AbstractActivity implements View.OnClickListen
 
     protected boolean startConnectService(Context mContext, String packageName, String className, ServiceConnection connection) {
         boolean isSuccess = startConnectService(mContext, new ComponentName(packageName, className), connection);
-        Logger.debug("bind service result (%s)" ,isSuccess);
+        Logger.debug("bind service result (%s)", isSuccess);
         return isSuccess;
     }
 
@@ -138,32 +138,32 @@ public class MainActivity extends AbstractActivity implements View.OnClickListen
             Button button = (Button) v;
             btnText = button.getText().toString();
         }
-        try{
+        try {
             boolean flag = false;
             writerInLog(btnText, R.id.log_default);
             if (index == R.id.btnSetScreenOff) {
                 flag = systemExtApi.setScreenOffTimeout(30000);
             } else if (index == R.id.getPreferredNetworkType) {
                 int type = systemExtApi.getPreferredNetworkType(NetworkType.PARCELABLE_WRITE_RETURN_VALUE);
-                writerInSuccessLog("result is : "+type);
+                writerInSuccessLog("result is : " + type);
                 return;
             } else if (index == R.id.setPreferredNetworkType) {
-                flag = systemExtApi.setPreferredNetworkType(0,9);
+                flag = systemExtApi.setPreferredNetworkType(0, 9);
             } else if (index == R.id.startLockTaskMode) {
                 flag = systemExtApi.startLockTaskMode(0);
             } else if (index == R.id.setMobileDataEnabled) {
-                flag = systemExtApi.setMobileDataEnabled(0,true);
+                flag = systemExtApi.setMobileDataEnabled(0, true);
             } else if (index == R.id.setMobileDataRoamingEnabled) {
-                flag = systemExtApi.setMobileDataRoamingEnabled(0,1);
+                flag = systemExtApi.setMobileDataRoamingEnabled(0, 1);
             } else if (index == R.id.getSupportedNetworkTypes) {
-                NetworkType [] networkTypes = systemExtApi.getSupportedNetworkTypes();
-                writerInSuccessLog("result is : "+JSON.toJSONString(networkTypes));
+                NetworkType[] networkTypes = systemExtApi.getSupportedNetworkTypes();
+                writerInSuccessLog("result is : " + JSON.toJSONString(networkTypes));
                 return;
             } else if (index == R.id.setTouchScreenWakeupValue) {
                 flag = systemExtApi.setTouchScreenWakeupValue("touch");
             } else if (index == R.id.getTouchScreenWakeupValue) {
                 String value = systemExtApi.getTouchScreenWakeupValue();
-                writerInSuccessLog("result is : "+value);
+                writerInSuccessLog("result is : " + value);
                 return;
             } else if (index == R.id.enableAutoTimezone) {
                 systemExtApi.enableAutoTimezone(true);
@@ -186,9 +186,11 @@ public class MainActivity extends AbstractActivity implements View.OnClickListen
             } else if (index == R.id.isEnableAutoTimeGUI) {
                 flag = systemExtApi.isEnableAutoTimeGUI();
             } else if (index == R.id.setDeviceOwner) {
-                flag = systemExtApi.setDeviceOwner(this.getPackageName(),LockReceiver.class.getName());
+                String packageName = this.getPackageName();
+                String receiverName = DeviceAdminSampleReceiver.class.getName();
+                flag = systemExtApi.setDeviceOwner(packageName, receiverName);
             } else if (index == R.id.setUsrProp) {
-                flag = systemExtApi.setUsrProp("fingerprint" + 0, "1");;
+                flag = systemExtApi.setUsrProp("fingerprint" + 0, "1");
             } else if (index == R.id.enableShowTouches) {
                 systemExtApi.enableShowTouches(true);
                 flag = true;
@@ -209,26 +211,29 @@ public class MainActivity extends AbstractActivity implements View.OnClickListen
                 flag = systemExtApi.getMtpStatus();
             } else if (index == R.id.setLanguage) {
                 flag = systemExtApi.setLanguage(Locale.CHINESE.getLanguage(), Locale.CHINESE.getCountry(), Locale.CHINESE.getVariant());
-            } else if (index == R.id.resetLanguage) {
-                flag = systemExtApi.setLanguage(Locale.ENGLISH.getLanguage(), Locale.ENGLISH.getCountry(), Locale.ENGLISH.getVariant());
             } else if (index == R.id.enableAirplaneMode) {
                 systemExtApi.enableAirplaneMode(true);
                 flag = true;
-            }else if (index == R.id.settings) {
+            } else if (index == R.id.settings) {
                 writerInLog("", R.id.log_clear);
             }
-            if(flag){
+            if (flag) {
                 writerInSuccessLog("result is true!");
-            }else if (index!=R.id.settings){
+            } else if (index != R.id.settings) {
                 writerInFailedLog("result is false!");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             writerInFailedLog("test failed!");
         }
 
     }
 
+    private void startDeviceAdmin(){
+        Intent intent = new Intent(this, DeviceAdminSample.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(intent);
+    }
 
     @Override
     protected void onDestroy() {
